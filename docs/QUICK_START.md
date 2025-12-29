@@ -6,6 +6,31 @@
 
 ## 📦 准备工作（仅首次）
 
+### 1. 配置项目文件
+
+```bash
+# 复制配置文件
+cp project.config.example.json project.config.json
+cp cloudbaserc.example.json cloudbaserc.json
+
+# 编辑配置文件，填入你的 AppID 和环境 ID
+# 详细说明见：../CONFIG_SETUP.md
+```
+
+### 2. 初始化数据库 ⭐ 重要
+
+**推荐方式：使用云函数**
+
+1. 在微信开发者工具中部署 `initDB` 云函数
+   - 右键 `cloudfunctions/initDB` > "上传并部署：云端安装依赖"
+2. 在云开发控制台调用 `initDB` 云函数
+   - 云开发 > 云函数 > initDB > "云端测试"
+3. 查看返回结果，确认 6 个集合创建成功
+
+**详细说明见：[DATABASE_INIT.md](./DATABASE_INIT.md)** 📖
+
+### 3. 安装 CloudBase CLI
+
 ```bash
 # 1. 安装 CloudBase CLI
 npm install -g @cloudbase/cli
@@ -105,6 +130,8 @@ tcb fn deploy common --dir cloudfunctions/common -e $ENV_ID --force
 
 ## 📋 部署检查清单
 
+- [ ] 已配置 project.config.json 和 cloudbaserc.json
+- [ ] 已初始化数据库（6 个集合）
 - [ ] 已安装并登录 CloudBase CLI
 - [ ] 已设置正确的环境ID
 - [ ] 运行部署脚本成功（8/8 成功）

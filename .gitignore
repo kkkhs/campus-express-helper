@@ -1,10 +1,15 @@
 # 微信小程序
 project.private.config.json
+project.config.json
 miniprogram_npm/
 node_modules/
 
 # 云函数
 cloudfunctions/**/node_modules/
+
+# 云开发配置（包含敏感信息）
+cloudbaserc.json
+cloudbaserc
 
 # 编辑器
 .vscode/
@@ -12,6 +17,7 @@ cloudfunctions/**/node_modules/
 *.swp
 *.swo
 *~
+.trae/
 
 # 系统文件
 .DS_Store
