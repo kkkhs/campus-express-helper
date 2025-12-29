@@ -1,0 +1,188 @@
+<view class="container">
+  <!-- 标签栏 -->
+  <view class="admin-tabs">
+    <view 
+      wx:for="{{tabs}}" 
+      wx:key="key"
+      class="tab-item {{activeTab === item.key ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="{{item.key}}"
+    >
+      <text class="tab-text">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 用户管理 -->
+  <view wx:if="{{activeTab === 'users'}}" class="content-section">
+    <scroll-view scroll-y class="content-list" refresher-enabled refresher-triggered="{{loading}}" bindrefresherrefresh="onPullDownRefresh">
+      <view wx:if="{{users.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">👥</text>
+        <text class="empty-text">暂无用户数据</text>
+      </view>
+
+      <view wx:for="{{users}}" wx:key="_id" class="user-item">
+        <view class="user-info">
+          <image class="avatar" src="{{item.avatar || '/images/default-avatar.png'}}" />
+          <view class="user-details">
+            <text class="nickname">{{item.nickname || '匿名用户'}}</text>
+            <text class="join-time">注册时间：{{item.createTimeText}}</text>
+            <text class="rating">⭐{{item.rating || '5.0'}}</text>
+          </view>
+        </view>
+        <view class="user-actions">
+          <text class="user-status {{item.banned ? 'banned' : 'normal'}}">
+            {{item.banned ? '已封禁' : '正常'}}
+          </text>
+          <button 
+            class="btn-ban {{item.banned ? 'btn-unban' : ''}}"
+            bindtap="toggleUserBan"
+            data-user-id="{{item._id}}"
+            data-banned="{{item.banned}}"
+          >
+            {{item.banned ? '解封' : '封禁'}}
+          </button>
+        </view>
+      </view>
+
+      <view wx:if="{{loading && users.length > 0}}" class="loading-more">
+        <text class="loading-text">加载中...</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 任务管理 -->
+  <view wx:if="{{activeTab === 'tasks'}}" class="content-section">
+    <scroll-view scroll-y class="content-list" refresher-enabled refresher-triggered="{{loading}}" bindrefresherrefresh="onPullDownRefresh">
+      <view wx:if="{{tasks.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">暂无任务数据</text>
+      </view>
+
+      <view wx:for="{{tasks}}" wx:key="_id" class="task-item">
+        <view class="task-header">
+          <view class="task-info">
+            <text class="task-time">{{formatTime(item.createTime)}}</text>
+            <view class="status-badge" style="color: {{item.status === 'pending' ? '#ff7d00' : item.status === 'accepted' ? '#1890ff' : item.status === 'completed' ? '#52c41a' : '#999'}}; background: {{item.status === 'pending' ? '#fff7e6' : item.status === 'accepted' ? '#e6f7ff' : item.status === 'completed' ? '#f6ffed' : '#f5f5f5'}};">
+              {{item.status === 'pending' ? '待接单' : item.status === 'accepted' ? '已接单' : item.status === 'completed' ? '已完成' : '已取消'}}
+            </view>
+          </view>
+          <view class="reward">¥{{item.reward}}</view>
+        </view>
+
+        <view class="task-content" bindtap="viewTaskDetail" data-task-id="{{item._id}}">
+          <view class="pickup-info">
+            <text class="pickup-point">{{item.pickupPoint === 'south' ? '南区' : '北区'}}</text>
+            <text class="company">{{item.company}}</text>
+          </view>
+          <view class="pickup-code">取件码：{{item.pickupCode}}</view>
+          <view class="publisher-info">
+            <text class="label">发布者：</text>
+            <text class="publisher-name">{{item.publisher.nickname}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{loading && tasks.length > 0}}" class="loading-more">
+        <text class="loading-text">加载中...</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 投诉管理 -->
+  <view wx:if="{{activeTab === 'complaints'}}" class="content-section">
+    <scroll-view scroll-y class="content-list" refresher-enabled refresher-triggered="{{loading}}" bindrefresherrefresh="onPullDownRefresh">
+      <view wx:if="{{complaints.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">⚠️</text>
+        <text class="empty-text">暂无投诉数据</text>
+      </view>
+
+      <view wx:for="{{complaints}}" wx:key="_id" class="complaint-item">
+        <view class="complaint-header">
+          <text class="complaint-time">{{formatTime(item.createTime)}}</text>
+          <view class="status-badge {{item.status === 'pending' ? 'pending' : item.status === 'resolved' ? 'resolved' : 'rejected'}}">
+            {{item.status === 'pending' ? '待处理' : item.status === 'resolved' ? '已解决' : '已驳回'}}
+          </view>
+        </view>
+
+        <view class="complaint-content">
+          <view class="complaint-info">
+            <text class="label">投诉人：</text>
+            <text class="complainant">{{item.complainant.nickname}}</text>
+          </view>
+          <view class="complaint-info">
+            <text class="label">被投诉人：</text>
+            <text class="respondent">{{item.respondent.nickname}}</text>
+          </view>
+          <view class="complaint-reason">
+            <text class="label">投诉原因：</text>
+            <text class="reason-text">{{item.reason}}</text>
+          </view>
+          <view class="complaint-description" wx:if="{{item.description}}">
+            <text class="label">详细描述：</text>
+            <text class="description-text">{{item.description}}</text>
+          </view>
+        </view>
+
+        <view class="complaint-actions" wx:if="{{item.status === 'pending'}}">
+          <button 
+            class="btn-resolve"
+            bindtap="handleComplaint"
+            data-complaint-id="{{item._id}}"
+            data-action="resolve"
+          >
+            标记已解决
+          </button>
+          <button 
+            class="btn-reject"
+            bindtap="handleComplaint"
+            data-complaint-id="{{item._id}}"
+            data-action="reject"
+          >
+            驳回投诉
+          </button>
+        </view>
+      </view>
+
+      <view wx:if="{{loading && complaints.length > 0}}" class="loading-more">
+        <text class="loading-text">加载中...</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 数据统计 -->
+  <view wx:if="{{activeTab === 'statistics'}}" class="content-section">
+    <view class="statistics-container">
+      <view class="stat-card">
+        <view class="stat-icon">👥</view>
+        <view class="stat-info">
+          <text class="stat-number">{{statistics.totalUsers}}</text>
+          <text class="stat-label">总用户数</text>
+        </view>
+      </view>
+
+      <view class="stat-card">
+        <view class="stat-icon">📋</view>
+        <view class="stat-info">
+          <text class="stat-number">{{statistics.totalTasks}}</text>
+          <text class="stat-label">总任务数</text>
+        </view>
+      </view>
+
+      <view class="stat-card">
+        <view class="stat-icon">✅</view>
+        <view class="stat-info">
+          <text class="stat-number">{{statistics.completedTasks}}</text>
+          <text class="stat-label">已完成任务</text>
+        </view>
+      </view>
+
+      <view class="stat-card">
+        <view class="stat-icon">⚠️</view>
+        <view class="stat-info">
+          <text class="stat-number">{{statistics.pendingComplaints}}</text>
+          <text class="stat-label">待处理投诉</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,8 @@
+{
+  "name": "common",
+  "version": "1.0.0",
+  "description": "云函数公共工具库",
+  "main": "utils.js",
+  "dependencies": {},
+  "devDependencies": {}
+}

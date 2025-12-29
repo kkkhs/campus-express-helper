@@ -1,0 +1,115 @@
+<view class="container">
+  <form bindsubmit="onSubmit">
+    <!-- 快递信息 -->
+    <view class="section">
+      <view class="section-title">快递信息</view>
+      
+      <view class="form-group">
+        <view class="form-label required">快递点</view>
+        <picker mode="selector" range="{{pickupPoints}}" bindchange="onPickupPointChange" value="{{pickupPointIndex}}">
+          <view class="picker-input {{pickupPoint ? '' : 'placeholder'}}">
+            {{pickupPoint || '请选择快递点'}}
+            <text class="arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label required">快递公司</view>
+        <picker mode="selector" range="{{companies}}" bindchange="onCompanyChange" value="{{companyIndex}}">
+          <view class="picker-input {{company ? '' : 'placeholder'}}">
+            {{company || '请选择快递公司'}}
+            <text class="arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label required">取件码</view>
+        <input 
+          class="form-input" 
+          name="pickupCode" 
+          placeholder="请输入取件码"
+          placeholder-style="color: #ccc"
+          maxlength="20"
+        />
+      </view>
+    </view>
+
+    <!-- 联系方式 -->
+    <view class="section">
+      <view class="section-title">联系方式</view>
+      
+      <view class="form-group">
+        <view class="form-label required">联系电话</view>
+        <input 
+          class="form-input" 
+          name="phone" 
+          type="number"
+          placeholder="请输入联系电话"
+          placeholder-style="color: #ccc"
+          maxlength="11"
+        />
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">微信号（选填）</view>
+        <input 
+          class="form-input" 
+          name="wechat" 
+          placeholder="请输入微信号（选填）"
+          placeholder-style="color: #ccc"
+          maxlength="30"
+        />
+      </view>
+    </view>
+
+    <!-- 酬劳设置 -->
+    <view class="section">
+      <view class="section-title">酬劳设置</view>
+      <view class="reward-slider-container">
+        <view class="reward-display">
+          <text class="reward-label">酬劳金额：</text>
+          <text class="reward-amount">¥{{reward}}</text>
+        </view>
+        <slider 
+          min="0" 
+          max="50" 
+          value="{{reward}}" 
+          bindchange="onRewardChange"
+          show-value
+          step="1"
+        />
+        <view class="reward-tips">
+          <text>💡 建议酬劳：5-20元</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注信息 -->
+    <view class="section">
+      <view class="section-title">备注信息</view>
+      <view class="form-group">
+        <textarea 
+          class="form-textarea" 
+          name="remark" 
+          placeholder="请输入备注信息（如：快递大小、特殊要求等）"
+          placeholder-style="color: #ccc"
+          maxlength="200"
+          auto-height
+        />
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button class="btn-primary" form-type="submit" loading="{{submitting}}">
+        发布任务
+      </button>
+      <view class="submit-tips">
+        <text>发布即表示同意</text>
+        <text class="link" bindtap="showAgreement">《用户协议》</text>
+      </view>
+    </view>
+  </form>
+</view>

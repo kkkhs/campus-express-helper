@@ -1,0 +1,175 @@
+<view class="container">
+  <view wx:if="{{!task}}" class="loading">
+    <text>加载中...</text>
+  </view>
+  
+  <view wx:else class="content">
+    <!-- 任务状态 -->
+    <view class="status-header">
+      <text class="status-tag status-{{task.status}}">{{statusText}}</text>
+      <text class="reward">酬劳 ¥{{task.reward}}</text>
+    </view>
+
+    <!-- 任务信息 -->
+    <view class="section">
+      <view class="section-title">快递信息</view>
+      
+      <view class="info-item">
+        <text class="label">快递点：</text>
+        <text class="value">{{task.pickupPoint}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="label">快递公司：</text>
+        <text class="value">{{task.company}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="label">取件码：</text>
+        <text class="value pickup-code">{{task.pickupCode}}</text>
+      </view>
+      
+      <view wx:if="{{task.remark}}" class="info-item">
+        <text class="label">备注：</text>
+        <text class="value">{{task.remark}}</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">联系方式</view>
+      <view class="contact-info">
+        <view wx:if="{{task.phone}}" class="contact-item" bindtap="makePhoneCall" data-phone="{{task.phone}}">
+          <text class="contact-label">📞 联系电话：</text>
+          <text class="contact-value">{{task.phone}}</text>
+        </view>
+        <view wx:if="{{task.wechat}}" class="contact-item" bindtap="copyWechat" data-wechat="{{task.wechat}}">
+          <text class="contact-label">💬 微信号：</text>
+          <text class="contact-value">{{task.wechat}}</text>
+        </view>
+        <view wx:if="{{!task.phone && !task.wechat}}" class="contact-hint">
+          <text>未填写联系方式</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 发布者信息 -->
+    <view class="section">
+      <view class="section-title">发布者信息</view>
+      
+      <view class="user-info">
+        <image class="avatar" src="{{publisher.avatar || '/images/default-avatar.png'}}" />
+        <view class="user-details">
+          <text class="nickname">{{publisher.nickname}}</text>
+          <text class="rating">⭐ {{publisher.rating}}</text>
+        </view>
+      </view>
+      
+      <!-- 联系方式（接单后显示） -->
+      <view wx:if="{{canViewContact}}" class="contact-info">
+        <view class="contact-item" bindtap="makePhoneCall" data-phone="{{publisher.phone}}">
+          <text class="contact-label">📞 联系电话：</text>
+          <text class="contact-value">{{publisher.phone || '未填写'}}</text>
+        </view>
+        
+        <view wx:if="{{publisher.wechat}}" class="contact-item">
+          <text class="contact-label">💬 微信号：</text>
+          <text class="contact-value">{{publisher.wechat}}</text>
+        </view>
+      </view>
+      
+      <view wx:else class="contact-hint">
+        <text>接单后可查看联系方式</text>
+      </view>
+    </view>
+
+    <!-- 接单者信息（如果已接单） -->
+    <view wx:if="{{order && order.takerInfo}}" class="section">
+      <view class="section-title">接单者信息</view>
+      
+      <view class="user-info">
+        <image class="avatar" src="{{order.takerInfo.avatar || '/images/default-avatar.png'}}" />
+        <view class="user-details">
+          <text class="nickname">{{order.takerInfo.nickname}}</text>
+          <text class="rating">⭐ {{order.takerInfo.rating}}</text>
+        </view>
+      </view>
+      
+      <!-- 接单者联系方式（任务发布者可见） -->
+      <view wx:if="{{isTaskOwner && order.takerInfo}}" class="contact-info">
+        <view class="contact-item" bindtap="makePhoneCall" data-phone="{{order.takerInfo.phone}}">
+          <text class="contact-label">📞 联系电话：</text>
+          <text class="contact-value">{{order.takerInfo.phone || '未填写'}}</text>
+        </view>
+        
+        <view wx:if="{{order.takerInfo.wechat}}" class="contact-item">
+          <text class="contact-label">💬 微信号：</text>
+          <text class="contact-value">{{order.takerInfo.wechat}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 评价（仅任务完成后展示） -->
+    <view wx:if="{{task.status === 'completed'}}" class="section">
+      <view class="section-title">评价</view>
+      <view wx:if="{{reviews.length === 0}}" class="contact-hint">
+        <text>暂无评价</text>
+      </view>
+      <view wx:else>
+        <view wx:for="{{reviews}}" wx:key="_id" class="review-card">
+          <view class="user-info">
+            <image class="avatar" src="{{item.reviewer.avatar || '/images/default-avatar.png'}}" />
+            <view class="user-details">
+              <text class="nickname">{{item.reviewer.nickname}}</text>
+              <text class="rating">⭐ {{item.rating}}</text>
+            </view>
+          </view>
+          <view class="info-item">
+            <text class="value">{{item.comment || '无评价内容'}}</text>
+          </view>
+          <view class="time-info">
+            <text>{{item.createTimeText}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view wx:if="{{hasAction}}" class="action-section">
+      <!-- 任务发布者视角 -->
+      <block wx:if="{{isTaskOwner}}">
+        <view wx:if="{{task.status === 'pending'}}" class="action-buttons">
+          <button class="btn-secondary" bindtap="cancelTask">取消任务</button>
+        </view>
+        
+        <view wx:if="{{task.status === 'accepted'}}" class="action-buttons">
+          <button class="btn-primary" bindtap="completeTask">确认完成</button>
+        </view>
+        
+        <view wx:if="{{task.status === 'completed'}}" class="action-buttons">
+          <button class="btn-secondary" bindtap="viewReviews">查看评价</button>
+        </view>
+      </block>
+      
+      <!-- 其他用户视角 -->
+      <block wx:else>
+        <view wx:if="{{task.status === 'pending'}}" class="action-buttons">
+          <button class="btn-primary" bindtap="acceptTask">立即接单</button>
+        </view>
+        
+        <view wx:if="{{task.status === 'accepted' && isTaskTaker}}" class="action-buttons">
+          <button class="btn-primary" bindtap="completeTask">确认完成</button>
+        </view>
+        
+        <view wx:if="{{task.status === 'completed' && isTaskTaker}}" class="action-buttons">
+          <button class="btn-secondary" bindtap="viewReviews">查看评价</button>
+        </view>
+      </block>
+    </view>
+
+    <!-- 时间信息 -->
+    <view class="time-info">
+      <text>发布时间：{{createTimeText}}</text>
+      <text wx:if="{{order && order.completeTime}}">完成时间：{{completeTimeText}}</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,151 @@
+<view class="container">
+  <view wx:if="{{!order}}" class="loading">
+    <text class="loading-icon">⏳</text>
+    <text class="loading-text">加载中...</text>
+  </view>
+  
+  <view wx:else class="content">
+    <!-- 顶部状态卡片 -->
+    <view class="header-card">
+      <view class="header-bg"></view>
+      <view class="header-content">
+        <view class="status-row">
+          <view class="status-badge status-{{order.status}}">
+            <text class="status-icon">{{order.statusIcon}}</text>
+            <text class="status-text">{{order.statusText}}</text>
+          </view>
+        </view>
+        <view class="reward-display">
+          <text class="reward-label">任务酬劳</text>
+          <view class="reward-amount">
+            <text class="reward-symbol">¥</text>
+            <text class="reward-value">{{task && task.reward || 0}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 任务信息卡片 -->
+    <view wx:if="{{task}}" class="info-card">
+      <view class="card-header">
+        <text class="card-icon">📦</text>
+        <text class="card-title">任务信息</text>
+      </view>
+      <view class="card-body">
+        <view class="info-row">
+          <view class="info-icon-wrapper green">
+            <text class="info-icon">📍</text>
+          </view>
+          <view class="info-content">
+            <text class="info-label">快递点</text>
+            <text class="info-value">{{task.pickupPoint}}</text>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-icon-wrapper blue">
+            <text class="info-icon">📦</text>
+          </view>
+          <view class="info-content">
+            <text class="info-label">快递公司</text>
+            <text class="info-value">{{task.company}}</text>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-icon-wrapper orange">
+            <text class="info-icon">🔢</text>
+          </view>
+          <view class="info-content">
+            <text class="info-label">取件码</text>
+            <text class="info-value highlight">{{task.pickupCode}}</text>
+          </view>
+        </view>
+        <view wx:if="{{task.remark}}" class="remark-box">
+          <text class="remark-icon">💭</text>
+          <text class="remark-text">{{task.remark}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时间信息卡片 -->
+    <view class="info-card">
+      <view class="card-header">
+        <text class="card-icon">⏰</text>
+        <text class="card-title">时间信息</text>
+      </view>
+      <view class="card-body">
+        <view class="time-row">
+          <text class="time-label">创建时间</text>
+          <text class="time-value">{{order.createTimeText}}</text>
+        </view>
+        <view wx:if="{{order.completeTime}}" class="time-row">
+          <text class="time-label">完成时间</text>
+          <text class="time-value">{{order.completeTimeText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 发布者信息卡片 -->
+    <view wx:if="{{publisher}}" class="info-card">
+      <view class="card-header">
+        <text class="card-icon">👤</text>
+        <text class="card-title">发布者信息</text>
+      </view>
+      <view class="card-body">
+        <view class="user-profile">
+          <image class="user-avatar" src="{{publisher.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+          <view class="user-info">
+            <text class="user-name">{{publisher.nickname}}</text>
+            <view class="user-rating">
+              <text class="rating-star">⭐</text>
+              <text class="rating-score">{{publisher.rating}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="contact-section">
+          <view wx:if="{{publisher.phone}}" class="contact-btn" bindtap="makePhoneCall" data-phone="{{publisher.phone}}">
+            <text class="contact-btn-icon">📞</text>
+            <text class="contact-btn-text">拨打电话</text>
+            <text class="contact-btn-value">{{publisher.phone}}</text>
+          </view>
+          <view wx:if="{{publisher.wechat}}" class="contact-btn" bindtap="copyWechat" data-wechat="{{publisher.wechat}}">
+            <text class="contact-btn-icon">💬</text>
+            <text class="contact-btn-text">复制微信</text>
+            <text class="contact-btn-value">{{publisher.wechat}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 接单者信息卡片 -->
+    <view wx:if="{{taker}}" class="info-card">
+      <view class="card-header">
+        <text class="card-icon">🤝</text>
+        <text class="card-title">接单者信息</text>
+      </view>
+      <view class="card-body">
+        <view class="user-profile">
+          <image class="user-avatar" src="{{taker.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+          <view class="user-info">
+            <text class="user-name">{{taker.nickname}}</text>
+            <view class="user-rating">
+              <text class="rating-star">⭐</text>
+              <text class="rating-score">{{taker.rating}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="contact-section">
+          <view wx:if="{{taker.phone}}" class="contact-btn" bindtap="makePhoneCall" data-phone="{{taker.phone}}">
+            <text class="contact-btn-icon">📞</text>
+            <text class="contact-btn-text">拨打电话</text>
+            <text class="contact-btn-value">{{taker.phone}}</text>
+          </view>
+          <view wx:if="{{taker.wechat}}" class="contact-btn" bindtap="copyWechat" data-wechat="{{taker.wechat}}">
+            <text class="contact-btn-icon">💬</text>
+            <text class="contact-btn-text">复制微信</text>
+            <text class="contact-btn-value">{{taker.wechat}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

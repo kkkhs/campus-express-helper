@@ -1,0 +1,154 @@
+<view class="container">
+  <!-- 登录引导 -->
+  <view wx:if="{{showLogin}}" class="login-overlay">
+    <view class="login-card">
+      <view class="login-icon">🎉</view>
+      <view class="login-title">欢迎使用快递互助</view>
+      <view class="login-desc">授权登录后即可发布任务、接单赚酬劳</view>
+      <view class="login-features">
+        <view class="feature-item">
+          <text class="feature-icon">📦</text>
+          <text class="feature-text">发布代取</text>
+        </view>
+        <view class="feature-item">
+          <text class="feature-icon">💰</text>
+          <text class="feature-text">赚取酬劳</text>
+        </view>
+        <view class="feature-item">
+          <text class="feature-icon">⭐</text>
+          <text class="feature-text">互相评价</text>
+        </view>
+      </view>
+      <button class="btn-login" bindtap="login">
+        <text class="btn-icon">✨</text>
+        <text>微信一键登录</text>
+      </button>
+    </view>
+  </view>
+  <!-- 顶部筛选栏 -->
+  <view class="filter-bar">
+    <picker mode="selector" range="{{pickupPoints}}" bindchange="onPickupPointChange">
+      <view class="filter-item {{pickupPoint ? 'active' : ''}}">
+        <text>{{pickupPoint || '快递点'}}</text>
+        <text class="arrow">▼</text>
+      </view>
+    </picker>
+    
+    <picker mode="selector" range="{{sortOptions}}" bindchange="onSortChange">
+      <view class="filter-item {{sortBy ? 'active' : ''}}">
+        <text>{{sortOptions[sortIndex] || '排序'}}</text>
+        <text class="arrow">▼</text>
+      </view>
+    </picker>
+    
+    <view class="filter-item {{showRewardFilter ? 'active' : ''}}" bindtap="toggleRewardFilter">
+      <text>酬劳</text>
+      <text class="arrow">▼</text>
+    </view>
+  </view>
+
+  <!-- 酬劳筛选弹窗 -->
+  <view class="reward-filter-popup {{showRewardFilter ? 'show' : ''}}">
+    <view class="popup-content">
+      <view class="popup-header">
+        <text>酬劳范围</text>
+        <text bindtap="toggleRewardFilter">✕</text>
+      </view>
+      <view class="reward-range">
+        <text>¥{{rewardMin}}</text>
+        <text>-</text>
+        <text>¥{{rewardMax}}</text>
+      </view>
+      <view class="range-sliders">
+        <view class="range-row">
+          <text class="range-label">最低</text>
+          <slider class="range-slider" min="0" max="{{rewardMax}}" value="{{rewardMin}}" bindchange="onRewardMinChange" bindchanging="onRewardMinChanging" />
+          <text class="range-val">¥{{rewardMin}}</text>
+        </view>
+        <view class="range-row">
+          <text class="range-label">最高</text>
+          <slider class="range-slider" min="{{rewardMin}}" max="50" value="{{rewardMax}}" bindchange="onRewardMaxChange" bindchanging="onRewardMaxChanging" />
+          <text class="range-val">¥{{rewardMax}}</text>
+        </view>
+      </view>
+      <view class="popup-buttons">
+        <button class="btn-secondary" bindtap="resetRewardFilter">重置</button>
+        <button class="btn-primary" bindtap="confirmRewardFilter">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 任务列表 -->
+  <scroll-view scroll-y class="task-list" refresher-enabled refresher-triggered="{{isRefreshing}}" bindrefresherrefresh="onRefresh">
+    <view wx:if="{{tasks.length === 0 && !loading}}" class="empty-state">
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无任务</text>
+      <text class="empty-subtext">快去发布第一个任务吧！</text>
+      <view class="empty-button" bindtap="goToPublish">
+        <text>立即发布</text>
+      </view>
+    </view>
+    
+    <view wx:for="{{tasks}}" wx:key="_id" class="task-card" bindtap="goToDetail" data-task-id="{{item._id}}">
+      <view class="task-header">
+        <view class="task-location">
+          <view class="location-icon-wrapper">
+            <text class="location-icon">📍</text>
+          </view>
+          <view class="location-info">
+            <text class="pickup-point">{{item.pickupPoint}}</text>
+            <text class="company-name">{{item.company}}</text>
+          </view>
+        </view>
+        <view class="task-reward-badge">
+          <text class="reward-symbol">¥</text>
+          <text class="reward-value">{{item.reward}}</text>
+        </view>
+      </view>
+      
+      <view class="task-body">
+        <view class="info-row">
+          <view class="info-item">
+            <text class="info-icon">📦</text>
+            <text class="info-text">取件码: {{item.pickupCode}}</text>
+          </view>
+        </view>
+        <view wx:if="{{item.remark}}" class="task-remark">
+          <text class="remark-icon">💬</text>
+          <text class="remark-text">{{item.remark}}</text>
+        </view>
+      </view>
+      
+      <view class="task-footer">
+        <view class="publisher-info">
+          <image class="publisher-avatar" src="{{item.publisher.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+          <view class="publisher-details">
+            <text class="publisher-name">{{item.publisher.nickname}}</text>
+            <view class="publisher-meta">
+              <text class="rating-text">⭐ {{item.publisher.rating}}</text>
+              <text class="time-text">{{item.createTimeText}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="action-button">
+          <text class="action-icon">🤝</text>
+          <text class="action-text">接单</text>
+        </view>
+      </view>
+    </view>
+    
+    <view wx:if="{{loading}}" class="loading-more">
+      <text>加载中...</text>
+    </view>
+    
+    <view wx:if="{{!hasMore && tasks.length > 0}}" class="no-more-data">
+      <text>没有更多了</text>
+    </view>
+  </scroll-view>
+
+  <!-- 发布按钮（登录后显示） -->
+  <view wx:if="{{!showLogin}}" class="publish-btn" bindtap="goToPublish">
+    <text class="plus-icon">+</text>
+    <text>发布任务</text>
+  </view>
+</view>

@@ -1,0 +1,17 @@
+<view class="container">
+  <view class="form-card">
+    <view class="form-row">
+      <text class="label">评分</text>
+      <view class="stars">
+        <block wx:for="{{[1,2,3,4,5]}}" wx:key="index" wx:for-item="item" wx:for-index="index">
+          <text class="star {{item <= rating ? 'on' : ''}}" data-value="{{item}}" bindtap="onStarTap">★</text>
+        </block>
+      </view>
+    </view>
+    <view class="form-row">
+      <text class="label">评价内容</text>
+      <textarea class="textarea" placeholder="说说你的体验（可选）" value="{{comment}}" bindinput="onCommentInput" maxlength="200" />
+    </view>
+    <button class="btn-submit" bindtap="submitReview" loading="{{submitting}}">提交评价</button>
+  </view>
+</view>

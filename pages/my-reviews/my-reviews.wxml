@@ -1,0 +1,40 @@
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{activeTab==='received'?'active':''}}" data-tab="received" bindtap="onTabChange">我收到的</view>
+    <view class="tab {{activeTab==='written'?'active':''}}" data-tab="written" bindtap="onTabChange">我写的</view>
+  </view>
+
+  <view wx:if="{{activeTab==='received'}}">
+    <view wx:if="{{received.length === 0}}" class="empty"><text>暂无评价</text></view>
+    <view wx:else class="list">
+      <view wx:for="{{received}}" wx:key="_id" class="card">
+        <view class="user">
+          <image class="avatar" src="{{item.reviewer.avatar || '/images/default-avatar.png'}}" />
+          <view class="info">
+            <text class="name">{{item.reviewer.nickname}}</text>
+            <text class="time">{{formatTime(item.createTime)}}</text>
+          </view>
+        </view>
+        <view class="rating">⭐ {{item.rating}}</view>
+        <view class="comment">{{item.comment || '无评价内容'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab==='written'}}">
+    <view wx:if="{{written.length === 0}}" class="empty"><text>暂无评价</text></view>
+    <view wx:else class="list">
+      <view wx:for="{{written}}" wx:key="_id" class="card">
+        <view class="user">
+          <image class="avatar" src="{{item.reviewee.avatar || '/images/default-avatar.png'}}" />
+          <view class="info">
+            <text class="name">{{item.reviewee.nickname}}</text>
+            <text class="time">{{formatTime(item.createTime)}}</text>
+          </view>
+        </view>
+        <view class="rating">⭐ {{item.rating}}</view>
+        <view class="comment">{{item.comment || '无评价内容'}}</view>
+      </view>
+    </view>
+  </view>
+</view>
